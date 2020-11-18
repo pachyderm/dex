@@ -269,10 +269,6 @@ func newServer(ctx context.Context, c Config, rotationStrategy rotationStrategy)
 		return nil, fmt.Errorf("server: failed to list connector objects from storage: %v", err)
 	}
 
-	if len(storageConnectors) == 0 && len(s.connectors) == 0 {
-		return nil, errors.New("server: no connectors specified")
-	}
-
 	for _, conn := range storageConnectors {
 		if _, err := s.OpenConnector(conn); err != nil {
 			return nil, fmt.Errorf("server: Failed to open connector %s: %v", conn.ID, err)
