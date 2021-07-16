@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -189,7 +190,7 @@ func (c *oidcConnector) Close() error {
 }
 
 func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string) (string, error) {
-	if c.redirectURI != callbackURL {
+	if c.redirectURI != callbackURL && os.Getenv("RELAX_ISSUER_CALLBACK_URL_EQUALITY_CHECK") != "true" {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q", callbackURL, c.redirectURI)
 	}
 
