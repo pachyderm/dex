@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -44,6 +43,8 @@ type Config struct {
 
 	// InsecureEnableGroups enables groups claims. This is disabled by default until https://github.com/dexidp/dex/issues/1065 is resolved
 	InsecureEnableGroups bool `json:"insecureEnableGroups"`
+
+	SkipIssuerCallbackDomainCheck bool `json:"skipIssuerCallbackDomainCheck"`
 
 	// GetUserInfo uses the userinfo endpoint to get additional claims for
 	// the token. This is especially useful where upstreams return "thin"
@@ -145,18 +146,19 @@ func (c *Config) Open(id string, logger log.Logger) (conn connector.Connector, e
 		verifier: provider.Verifier(
 			&oidc.Config{ClientID: clientID},
 		),
-		logger:                    logger,
-		cancel:                    cancel,
-		hostedDomains:             c.HostedDomains,
-		insecureSkipEmailVerified: c.InsecureSkipEmailVerified,
-		insecureEnableGroups:      c.InsecureEnableGroups,
-		getUserInfo:               c.GetUserInfo,
-		promptType:                c.PromptType,
-		userIDKey:                 c.UserIDKey,
-		userNameKey:               c.UserNameKey,
-		preferredUsernameKey:      c.ClaimMapping.PreferredUsernameKey,
-		emailKey:                  c.ClaimMapping.EmailKey,
-		groupsKey:                 c.ClaimMapping.GroupsKey,
+		logger:                        logger,
+		cancel:                        cancel,
+		hostedDomains:                 c.HostedDomains,
+		insecureSkipEmailVerified:     c.InsecureSkipEmailVerified,
+		insecureEnableGroups:          c.InsecureEnableGroups,
+		skipIssuerCallbackDomainCheck: c.SkipIssuerCallbackDomainCheck,
+		getUserInfo:                   c.GetUserInfo,
+		promptType:                    c.PromptType,
+		userIDKey:                     c.UserIDKey,
+		userNameKey:                   c.UserNameKey,
+		preferredUsernameKey:          c.ClaimMapping.PreferredUsernameKey,
+		emailKey:                      c.ClaimMapping.EmailKey,
+		groupsKey:                     c.ClaimMapping.GroupsKey,
 	}, nil
 }
 
@@ -166,22 +168,23 @@ var (
 )
 
 type oidcConnector struct {
-	provider                  *oidc.Provider
-	redirectURI               string
-	oauth2Config              *oauth2.Config
-	verifier                  *oidc.IDTokenVerifier
-	cancel                    context.CancelFunc
-	logger                    log.Logger
-	hostedDomains             []string
-	insecureSkipEmailVerified bool
-	insecureEnableGroups      bool
-	getUserInfo               bool
-	promptType                string
-	userIDKey                 string
-	userNameKey               string
-	preferredUsernameKey      string
-	emailKey                  string
-	groupsKey                 string
+	provider                      *oidc.Provider
+	redirectURI                   string
+	oauth2Config                  *oauth2.Config
+	verifier                      *oidc.IDTokenVerifier
+	cancel                        context.CancelFunc
+	logger                        log.Logger
+	hostedDomains                 []string
+	insecureSkipEmailVerified     bool
+	insecureEnableGroups          bool
+	skipIssuerCallbackDomainCheck bool
+	getUserInfo                   bool
+	promptType                    string
+	userIDKey                     string
+	userNameKey                   string
+	preferredUsernameKey          string
+	emailKey                      string
+	groupsKey                     string
 }
 
 func (c *oidcConnector) Close() error {
@@ -190,7 +193,7 @@ func (c *oidcConnector) Close() error {
 }
 
 func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string) (string, error) {
-	if c.redirectURI != callbackURL && os.Getenv("RELAX_ISSUER_CALLBACK_URL_EQUALITY_CHECK") != "true" {
+	if c.redirectURI != callbackURL && !c.skipIssuerCallbackDomainCheck {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q", callbackURL, c.redirectURI)
 	}
 
