@@ -52,6 +52,9 @@ type Config struct {
 	// Disable certificate verification
 	InsecureSkipVerify bool `json:"insecureSkipVerify"`
 
+	// Skips checking whether the requested domain in the Login Callback matches the configured Issuer
+	InsecureSkipIssuerCallbackDomainCheck bool `json:"insecureSkipIssuerCallbackDomainCheck"`
+
 	// GetUserInfo uses the userinfo endpoint to get additional claims for
 	// the token. This is especially useful where upstreams return "thin"
 	// id tokens
@@ -163,20 +166,21 @@ func (c *Config) Open(id string, logger log.Logger) (conn connector.Connector, e
 		verifier: provider.Verifier(
 			&oidc.Config{ClientID: clientID},
 		),
-		logger:                    logger,
-		cancel:                    cancel,
-		httpClient:                httpClient,
-		insecureSkipEmailVerified: c.InsecureSkipEmailVerified,
-		insecureEnableGroups:      c.InsecureEnableGroups,
-		acrValues:                 c.AcrValues,
-		getUserInfo:               c.GetUserInfo,
-		promptType:                c.PromptType,
-		userIDKey:                 c.UserIDKey,
-		userNameKey:               c.UserNameKey,
-		overrideClaimMapping:      c.OverrideClaimMapping,
-		preferredUsernameKey:      c.ClaimMapping.PreferredUsernameKey,
-		emailKey:                  c.ClaimMapping.EmailKey,
-		groupsKey:                 c.ClaimMapping.GroupsKey,
+		logger:                                logger,
+		cancel:                                cancel,
+		httpClient:                            httpClient,
+		insecureSkipEmailVerified:             c.InsecureSkipEmailVerified,
+		insecureEnableGroups:                  c.InsecureEnableGroups,
+		acrValues:                             c.AcrValues,
+		getUserInfo:                           c.GetUserInfo,
+		promptType:                            c.PromptType,
+		userIDKey:                             c.UserIDKey,
+		userNameKey:                           c.UserNameKey,
+		overrideClaimMapping:                  c.OverrideClaimMapping,
+		preferredUsernameKey:                  c.ClaimMapping.PreferredUsernameKey,
+		emailKey:                              c.ClaimMapping.EmailKey,
+		groupsKey:                             c.ClaimMapping.GroupsKey,
+		insecureSkipIssuerCallbackDomainCheck: c.InsecureSkipIssuerCallbackDomainCheck,
 	}, nil
 }
 
@@ -186,24 +190,25 @@ var (
 )
 
 type oidcConnector struct {
-	provider                  *oidc.Provider
-	redirectURI               string
-	oauth2Config              *oauth2.Config
-	verifier                  *oidc.IDTokenVerifier
-	cancel                    context.CancelFunc
-	logger                    log.Logger
-	httpClient                *http.Client
-	insecureSkipEmailVerified bool
-	insecureEnableGroups      bool
-	acrValues                 []string
-	getUserInfo               bool
-	promptType                string
-	userIDKey                 string
-	userNameKey               string
-	overrideClaimMapping      bool
-	preferredUsernameKey      string
-	emailKey                  string
-	groupsKey                 string
+	provider                              *oidc.Provider
+	redirectURI                           string
+	oauth2Config                          *oauth2.Config
+	verifier                              *oidc.IDTokenVerifier
+	cancel                                context.CancelFunc
+	logger                                log.Logger
+	httpClient                            *http.Client
+	insecureSkipEmailVerified             bool
+	insecureEnableGroups                  bool
+	acrValues                             []string
+	getUserInfo                           bool
+	promptType                            string
+	userIDKey                             string
+	userNameKey                           string
+	overrideClaimMapping                  bool
+	preferredUsernameKey                  string
+	emailKey                              string
+	groupsKey                             string
+	insecureSkipIssuerCallbackDomainCheck bool
 }
 
 func (c *oidcConnector) Close() error {
@@ -212,7 +217,7 @@ func (c *oidcConnector) Close() error {
 }
 
 func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string) (string, error) {
-	if c.redirectURI != callbackURL {
+	if c.redirectURI != callbackURL && !c.insecureSkipIssuerCallbackDomainCheck {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q", callbackURL, c.redirectURI)
 	}
 
