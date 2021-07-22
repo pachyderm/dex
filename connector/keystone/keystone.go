@@ -35,6 +35,7 @@ type domainKeystone struct {
 // Config holds the configuration parameters for Keystone connector.
 // Keystone should expose API v3
 // An example config:
+//
 //	connectors:
 //		type: keystone
 //		id: keystone
