@@ -189,6 +189,20 @@ func (aru *AuthRequestUpdate) SetNillableCodeChallengeMethod(s *string) *AuthReq
 	return aru
 }
 
+// SetLoginHint sets the "login_hint" field.
+func (aru *AuthRequestUpdate) SetLoginHint(s string) *AuthRequestUpdate {
+	aru.mutation.SetLoginHint(s)
+	return aru
+}
+
+// SetNillableLoginHint sets the "login_hint" field if the given value is not nil.
+func (aru *AuthRequestUpdate) SetNillableLoginHint(s *string) *AuthRequestUpdate {
+	if s != nil {
+		aru.SetLoginHint(*s)
+	}
+	return aru
+}
+
 // Mutation returns the AuthRequestMutation object of the builder.
 func (aru *AuthRequestUpdate) Mutation() *AuthRequestMutation {
 	return aru.mutation
@@ -420,6 +434,13 @@ func (aru *AuthRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: authrequest.FieldCodeChallengeMethod,
 		})
 	}
+	if value, ok := aru.mutation.LoginHint(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: authrequest.FieldLoginHint,
+		})
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, aru.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{authrequest.Label}
@@ -597,6 +618,20 @@ func (aruo *AuthRequestUpdateOne) SetCodeChallengeMethod(s string) *AuthRequestU
 func (aruo *AuthRequestUpdateOne) SetNillableCodeChallengeMethod(s *string) *AuthRequestUpdateOne {
 	if s != nil {
 		aruo.SetCodeChallengeMethod(*s)
+	}
+	return aruo
+}
+
+// SetLoginHint sets the "login_hint" field.
+func (aruo *AuthRequestUpdateOne) SetLoginHint(s string) *AuthRequestUpdateOne {
+	aruo.mutation.SetLoginHint(s)
+	return aruo
+}
+
+// SetNillableLoginHint sets the "login_hint" field if the given value is not nil.
+func (aruo *AuthRequestUpdateOne) SetNillableLoginHint(s *string) *AuthRequestUpdateOne {
+	if s != nil {
+		aruo.SetLoginHint(*s)
 	}
 	return aruo
 }
@@ -854,6 +889,13 @@ func (aruo *AuthRequestUpdateOne) sqlSave(ctx context.Context) (_node *AuthReque
 			Type:   field.TypeString,
 			Value:  value,
 			Column: authrequest.FieldCodeChallengeMethod,
+		})
+	}
+	if value, ok := aruo.mutation.LoginHint(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: authrequest.FieldLoginHint,
 		})
 	}
 	_node = &AuthRequest{config: aruo.config}

@@ -45,6 +45,8 @@ const (
 	FieldCodeChallenge = "code_challenge"
 	// FieldCodeChallengeMethod holds the string denoting the code_challenge_method field in the database.
 	FieldCodeChallengeMethod = "code_challenge_method"
+	// FieldLoginHint holds the string denoting the login_hint field in the database.
+	FieldLoginHint = "login_hint"
 	// Table holds the table name of the authrequest in the database.
 	Table = "auth_requests"
 )
@@ -71,6 +73,7 @@ var Columns = []string{
 	FieldExpiry,
 	FieldCodeChallenge,
 	FieldCodeChallengeMethod,
+	FieldLoginHint,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -90,6 +93,8 @@ var (
 	DefaultCodeChallenge string
 	// DefaultCodeChallengeMethod holds the default value on creation for the "code_challenge_method" field.
 	DefaultCodeChallengeMethod string
+	// DefaultLoginHint holds the default value on creation for the "login_hint" field.
+	DefaultLoginHint string
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )

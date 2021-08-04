@@ -55,6 +55,8 @@ type AuthRequest struct {
 	CodeChallenge string `json:"code_challenge,omitempty"`
 	// CodeChallengeMethod holds the value of the "code_challenge_method" field.
 	CodeChallengeMethod string `json:"code_challenge_method,omitempty"`
+	// LoginHint holds the value of the "login_hint" field.
+	LoginHint string `json:"login_hint,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -66,7 +68,7 @@ func (*AuthRequest) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new([]byte)
 		case authrequest.FieldForceApprovalPrompt, authrequest.FieldLoggedIn, authrequest.FieldClaimsEmailVerified:
 			values[i] = new(sql.NullBool)
-		case authrequest.FieldID, authrequest.FieldClientID, authrequest.FieldRedirectURI, authrequest.FieldNonce, authrequest.FieldState, authrequest.FieldClaimsUserID, authrequest.FieldClaimsUsername, authrequest.FieldClaimsEmail, authrequest.FieldClaimsPreferredUsername, authrequest.FieldConnectorID, authrequest.FieldCodeChallenge, authrequest.FieldCodeChallengeMethod:
+		case authrequest.FieldID, authrequest.FieldClientID, authrequest.FieldRedirectURI, authrequest.FieldNonce, authrequest.FieldState, authrequest.FieldClaimsUserID, authrequest.FieldClaimsUsername, authrequest.FieldClaimsEmail, authrequest.FieldClaimsPreferredUsername, authrequest.FieldConnectorID, authrequest.FieldCodeChallenge, authrequest.FieldCodeChallengeMethod, authrequest.FieldLoginHint:
 			values[i] = new(sql.NullString)
 		case authrequest.FieldExpiry:
 			values[i] = new(sql.NullTime)
@@ -214,6 +216,12 @@ func (ar *AuthRequest) assignValues(columns []string, values []interface{}) erro
 			} else if value.Valid {
 				ar.CodeChallengeMethod = value.String
 			}
+		case authrequest.FieldLoginHint:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field login_hint", values[i])
+			} else if value.Valid {
+				ar.LoginHint = value.String
+			}
 		}
 	}
 	return nil
@@ -282,6 +290,8 @@ func (ar *AuthRequest) String() string {
 	builder.WriteString(ar.CodeChallenge)
 	builder.WriteString(", code_challenge_method=")
 	builder.WriteString(ar.CodeChallengeMethod)
+	builder.WriteString(", login_hint=")
+	builder.WriteString(ar.LoginHint)
 	builder.WriteByte(')')
 	return builder.String()
 }

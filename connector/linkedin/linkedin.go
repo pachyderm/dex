@@ -62,7 +62,7 @@ var (
 )
 
 // LoginURL returns an access token request URL
-func (c *linkedInConnector) LoginURL(scopes connector.Scopes, callbackURL, state string) (string, error) {
+func (c *linkedInConnector) LoginURL(scopes connector.Scopes, callbackURL, state string, _ map[string]string) (string, error) {
 	if c.oauth2Config.RedirectURL != callbackURL {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q",
 			callbackURL, c.oauth2Config.RedirectURL)

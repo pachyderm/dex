@@ -199,6 +199,7 @@ type AuthRequest struct {
 	RedirectURI   string
 	Nonce         string
 	State         string
+	LoginHint     string
 
 	// The client has indicated that the end user must be shown an approval prompt
 	// on all requests. The server cannot cache their initial action for subsequent

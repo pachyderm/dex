@@ -281,4 +281,11 @@ var migrations = []migration{
 				add column obsolete_token text default '';`,
 		},
 	},
+	{
+		stmts: []string{
+			`
+			alter table auth_request
+				add column login_hint text not null default '';`,
+		},
+	},
 }

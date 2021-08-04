@@ -1180,6 +1180,7 @@ type AuthRequestMutation struct {
 	expiry                    *time.Time
 	code_challenge            *string
 	code_challenge_method     *string
+	login_hint                *string
 	clearedFields             map[string]struct{}
 	done                      bool
 	oldValue                  func(context.Context) (*AuthRequest, error)
@@ -2007,6 +2008,42 @@ func (m *AuthRequestMutation) ResetCodeChallengeMethod() {
 	m.code_challenge_method = nil
 }
 
+// SetLoginHint sets the "login_hint" field.
+func (m *AuthRequestMutation) SetLoginHint(s string) {
+	m.login_hint = &s
+}
+
+// LoginHint returns the value of the "login_hint" field in the mutation.
+func (m *AuthRequestMutation) LoginHint() (r string, exists bool) {
+	v := m.login_hint
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLoginHint returns the old "login_hint" field's value of the AuthRequest entity.
+// If the AuthRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AuthRequestMutation) OldLoginHint(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldLoginHint is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldLoginHint requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLoginHint: %w", err)
+	}
+	return oldValue.LoginHint, nil
+}
+
+// ResetLoginHint resets all changes to the "login_hint" field.
+func (m *AuthRequestMutation) ResetLoginHint() {
+	m.login_hint = nil
+}
+
 // Op returns the operation name.
 func (m *AuthRequestMutation) Op() Op {
 	return m.op
@@ -2021,7 +2058,7 @@ func (m *AuthRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AuthRequestMutation) Fields() []string {
-	fields := make([]string, 0, 19)
+	fields := make([]string, 0, 20)
 	if m.client_id != nil {
 		fields = append(fields, authrequest.FieldClientID)
 	}
@@ -2079,6 +2116,9 @@ func (m *AuthRequestMutation) Fields() []string {
 	if m.code_challenge_method != nil {
 		fields = append(fields, authrequest.FieldCodeChallengeMethod)
 	}
+	if m.login_hint != nil {
+		fields = append(fields, authrequest.FieldLoginHint)
+	}
 	return fields
 }
 
@@ -2125,6 +2165,8 @@ func (m *AuthRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.CodeChallenge()
 	case authrequest.FieldCodeChallengeMethod:
 		return m.CodeChallengeMethod()
+	case authrequest.FieldLoginHint:
+		return m.LoginHint()
 	}
 	return nil, false
 }
@@ -2172,6 +2214,8 @@ func (m *AuthRequestMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldCodeChallenge(ctx)
 	case authrequest.FieldCodeChallengeMethod:
 		return m.OldCodeChallengeMethod(ctx)
+	case authrequest.FieldLoginHint:
+		return m.OldLoginHint(ctx)
 	}
 	return nil, fmt.Errorf("unknown AuthRequest field %s", name)
 }
@@ -2314,6 +2358,13 @@ func (m *AuthRequestMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCodeChallengeMethod(v)
 		return nil
+	case authrequest.FieldLoginHint:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLoginHint(v)
+		return nil
 	}
 	return fmt.Errorf("unknown AuthRequest field %s", name)
 }
@@ -2446,6 +2497,9 @@ func (m *AuthRequestMutation) ResetField(name string) error {
 		return nil
 	case authrequest.FieldCodeChallengeMethod:
 		m.ResetCodeChallengeMethod()
+		return nil
+	case authrequest.FieldLoginHint:
+		m.ResetLoginHint()
 		return nil
 	}
 	return fmt.Errorf("unknown AuthRequest field %s", name)

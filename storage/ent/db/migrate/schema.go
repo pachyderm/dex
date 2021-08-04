@@ -56,6 +56,7 @@ var (
 		{Name: "expiry", Type: field.TypeTime},
 		{Name: "code_challenge", Type: field.TypeString, Size: 2147483647, Default: "", SchemaType: map[string]string{"sqlite3": "text"}},
 		{Name: "code_challenge_method", Type: field.TypeString, Size: 2147483647, Default: "", SchemaType: map[string]string{"sqlite3": "text"}},
+		{Name: "login_hint", Type: field.TypeString, Size: 2147483647, Default: "", SchemaType: map[string]string{"sqlite3": "text"}},
 	}
 	// AuthRequestsTable holds the schema information for the "auth_requests" table.
 	AuthRequestsTable = &schema.Table{

@@ -570,6 +570,7 @@ func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthReques
 		RedirectURI:         redirectURI,
 		ResponseTypes:       responseTypes,
 		ConnectorID:         connectorID,
+		LoginHint:           q.Get("login_hint"),
 		PKCE: storage.PKCE{
 			CodeChallenge:       codeChallenge,
 			CodeChallengeMethod: codeChallengeMethod,
