@@ -197,7 +197,7 @@ func (c *oidcConnector) Close() error {
 	return nil
 }
 
-func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string, forwardParams map[string]string) (string, error) {
+func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string, forwardParams url.Values) (string, error) {
 	if c.redirectURI != callbackURL && !c.insecureSkipIssuerCallbackDomainCheck {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q", callbackURL, c.redirectURI)
 	}
@@ -214,7 +214,7 @@ func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string, 
 		opts = append(opts, oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", c.promptType))
 	}
 
-	for p, v := range forwardParams {
+	for p := range forwardParams {
 		paramApproved := false
 		for _, approvedParam := range c.forwardedLoginParams {
 			if p == approvedParam {
@@ -223,7 +223,7 @@ func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string, 
 			}
 		}
 		if paramApproved {
-			opts = append(opts, oauth2.SetAuthURLParam(p, v))
+			opts = append(opts, oauth2.SetAuthURLParam(p, forwardParams.Get(p)))
 		} else {
 			c.logger.Infof("oidc: auth query parameter %s, is unapproved and was not forwarded to the connector idp", p)
 		}

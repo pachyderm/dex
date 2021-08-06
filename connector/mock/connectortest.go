@@ -43,7 +43,7 @@ type Callback struct {
 }
 
 // LoginURL returns the URL to redirect the user to login with.
-func (m *Callback) LoginURL(s connector.Scopes, callbackURL, state string, _ map[string]string) (string, error) {
+func (m *Callback) LoginURL(s connector.Scopes, callbackURL, state string, _ url.Values) (string, error) {
 	u, err := url.Parse(callbackURL)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse callbackURL %q: %v", callbackURL, err)

@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -117,7 +118,7 @@ func (c *openshiftConnector) Close() error {
 }
 
 // LoginURL returns the URL to redirect the user to login with.
-func (c *openshiftConnector) LoginURL(scopes connector.Scopes, callbackURL, state string, _ map[string]string) (string, error) {
+func (c *openshiftConnector) LoginURL(scopes connector.Scopes, callbackURL, state string, _ url.Values) (string, error) {
 	if c.redirectURI != callbackURL {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q", callbackURL, c.redirectURI)
 	}

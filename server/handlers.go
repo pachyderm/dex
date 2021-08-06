@@ -184,7 +184,7 @@ func (s *Server) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleConnectorLogin(w http.ResponseWriter, r *http.Request) {
-	authReq, err := s.parseAuthorizationRequest(r)
+	authReq, forwardParams, err := s.parseAuthorizationRequest(r)
 	if err != nil {
 		s.logger.Errorf("Failed to parse authorization request: %v", err)
 		status := http.StatusInternalServerError
@@ -247,10 +247,6 @@ func (s *Server) handleConnectorLogin(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		switch conn := conn.Connector.(type) {
 		case connector.CallbackConnector:
-			forwardParams := make(map[string]string)
-			if authReq.LoginHint != "" {
-				forwardParams["login_hint"] = authReq.LoginHint
-			}
 			// Use the auth request ID as the "state" token.
 			//
 			// TODO(ericchiang): Is this appropriate or should we also be using a nonce?
