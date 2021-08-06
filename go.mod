@@ -3,7 +3,7 @@ module github.com/dexidp/dex
 go 1.16
 
 require (
-	entgo.io/ent v0.8.0
+	entgo.io/ent v0.9.0
 	github.com/AppsFlyer/go-sundheit v0.4.0
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/beevik/etree v1.1.0
@@ -19,7 +19,7 @@ require (
 	github.com/kylelemons/godebug v1.1.0
 	github.com/lib/pq v1.10.2
 	github.com/mattermost/xml-roundtrip-validator v0.1.0
-	github.com/mattn/go-sqlite3 v1.14.7
+	github.com/mattn/go-sqlite3 v1.14.8
 	github.com/oklog/run v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
