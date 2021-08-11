@@ -313,7 +313,7 @@ func TestParseAuthorizationRequest(t *testing.T) {
 				req = httptest.NewRequest("GET", httpServer.URL+"/auth?"+params.Encode(), nil)
 			}
 
-			_, err := server.parseAuthorizationRequest(req)
+			_, _, err := server.parseAuthorizationRequest(req)
 			if tc.expectedError == nil {
 				if err != nil {
 					t.Errorf("%s: expected no error", tc.name)

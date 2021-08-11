@@ -210,9 +210,9 @@ func signPayload(key *jose.JSONWebKey, alg jose.SignatureAlgorithm, payload []by
 // The hash algorithm for the at_hash is determined by the signing
 // algorithm used for the id_token. From the spec:
 //
-//    ...the hash algorithm used is the hash algorithm used in the alg Header
-//    Parameter of the ID Token's JOSE Header. For instance, if the alg is RS256,
-//    hash the access_token value with SHA-256
+//	...the hash algorithm used is the hash algorithm used in the alg Header
+//	Parameter of the ID Token's JOSE Header. For instance, if the alg is RS256,
+//	hash the access_token value with SHA-256
 //
 // https://openid.net/specs/openid-connect-core-1_0.html#ImplicitIDToken
 var hashForSigAlg = map[jose.SignatureAlgorithm]func() hash.Hash{
@@ -409,14 +409,14 @@ func (s *Server) newIDToken(clientID string, claims storage.Claims, scopes []str
 }
 
 // parse the initial request from the OAuth2 client.
-func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthRequest, error) {
+func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthRequest, url.Values, error) {
 	if err := r.ParseForm(); err != nil {
-		return nil, newDisplayedErr(http.StatusBadRequest, "Failed to parse request.")
+		return nil, nil, newDisplayedErr(http.StatusBadRequest, "Failed to parse request.")
 	}
 	q := r.Form
 	redirectURI, err := url.QueryUnescape(q.Get("redirect_uri"))
 	if err != nil {
-		return nil, newDisplayedErr(http.StatusBadRequest, "No redirect_uri provided.")
+		return nil, nil, newDisplayedErr(http.StatusBadRequest, "No redirect_uri provided.")
 	}
 
 	clientID := q.Get("client_id")
@@ -437,14 +437,15 @@ func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthReques
 	client, err := s.storage.GetClient(clientID)
 	if err != nil {
 		if err == storage.ErrNotFound {
-			return nil, newDisplayedErr(http.StatusNotFound, "Invalid client_id (%q).", clientID)
+			return nil, nil, newDisplayedErr(http.StatusNotFound, "Invalid client_id (%q).", clientID)
 		}
 		s.logger.Errorf("Failed to get client: %v", err)
-		return nil, newDisplayedErr(http.StatusInternalServerError, "Database error.")
+		return nil, nil, newDisplayedErr(http.StatusInternalServerError, "Database error.")
 	}
 
 	if !validateRedirectURI(client, redirectURI) {
-		return nil, newDisplayedErr(http.StatusBadRequest, "Unregistered redirect_uri (%q).", redirectURI)
+		description := fmt.Sprintf("Unregistered redirect_uri (%q).", redirectURI)
+		return nil, nil, newDisplayedErr(http.StatusBadRequest, description)
 	}
 	if redirectURI == deviceCallbackURI && client.Public {
 		redirectURI = s.issuerURL.Path + deviceCallbackURI
@@ -459,22 +460,22 @@ func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthReques
 		connectors, err := s.storage.ListConnectors()
 		if err != nil {
 			s.logger.Errorf("Failed to list connectors: %v", err)
-			return nil, newRedirectedErr(errServerError, "Unable to retrieve connectors")
+			return nil, nil, newRedirectedErr(errServerError, "Unable to retrieve connectors")
 		}
 		if !validateConnectorID(connectors, connectorID) {
-			return nil, newRedirectedErr(errInvalidRequest, "Invalid ConnectorID")
+			return nil, nil, newRedirectedErr(errInvalidRequest, "Invalid ConnectorID")
 		}
 	}
 
 	// dex doesn't support request parameter and must return request_not_supported error
 	// https://openid.net/specs/openid-connect-core-1_0.html#6.1
 	if q.Get("request") != "" {
-		return nil, newRedirectedErr(errRequestNotSupported, "Server does not support request parameter.")
+		return nil, nil, newRedirectedErr(errRequestNotSupported, "Server does not support request parameter.")
 	}
 
 	if codeChallengeMethod != codeChallengeMethodS256 && codeChallengeMethod != codeChallengeMethodPlain {
 		description := fmt.Sprintf("Unsupported PKCE challenge method (%q).", codeChallengeMethod)
-		return nil, newRedirectedErr(errInvalidRequest, description)
+		return nil, nil, newRedirectedErr(errInvalidRequest, description)
 	}
 
 	var (
@@ -496,7 +497,7 @@ func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthReques
 
 			isTrusted, err := s.validateCrossClientTrust(clientID, peerID)
 			if err != nil {
-				return nil, newRedirectedErr(errServerError, "Internal server error.")
+				return nil, nil, newRedirectedErr(errServerError, "Internal server error.")
 			}
 			if !isTrusted {
 				invalidScopes = append(invalidScopes, scope)
@@ -504,13 +505,13 @@ func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthReques
 		}
 	}
 	if !hasOpenIDScope {
-		return nil, newRedirectedErr(errInvalidScope, `Missing required scope(s) ["openid"].`)
+		return nil, nil, newRedirectedErr(errInvalidScope, `Missing required scope(s) ["openid"].`)
 	}
 	if len(unrecognized) > 0 {
-		return nil, newRedirectedErr(errInvalidScope, "Unrecognized scope(s) %q", unrecognized)
+		return nil, nil, newRedirectedErr(errInvalidScope, "Unrecognized scope(s) %q", unrecognized)
 	}
 	if len(invalidScopes) > 0 {
-		return nil, newRedirectedErr(errInvalidScope, "Client can't request scope(s) %q", invalidScopes)
+		return nil, nil, newRedirectedErr(errInvalidScope, "Client can't request scope(s) %q", invalidScopes)
 	}
 
 	var rt struct {
@@ -528,23 +529,23 @@ func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthReques
 		case responseTypeToken:
 			rt.token = true
 		default:
-			return nil, newRedirectedErr(errInvalidRequest, "Invalid response type %q", responseType)
+			return nil, nil, newRedirectedErr(errInvalidRequest, "Invalid response type %q", responseType)
 		}
 
 		if !s.supportedResponseTypes[responseType] {
-			return nil, newRedirectedErr(errUnsupportedResponseType, "Unsupported response type %q", responseType)
+			return nil, nil, newRedirectedErr(errUnsupportedResponseType, "Unsupported response type %q", responseType)
 		}
 	}
 
 	if len(responseTypes) == 0 {
-		return nil, newRedirectedErr(errInvalidRequest, "No response_type provided")
+		return nil, nil, newRedirectedErr(errInvalidRequest, "No response_type provided")
 	}
 
 	if rt.token && !rt.code && !rt.idToken {
 		// "token" can't be provided by its own.
 		//
 		// https://openid.net/specs/openid-connect-core-1_0.html#Authentication
-		return nil, newRedirectedErr(errInvalidRequest, "Response type 'token' must be provided with type 'id_token' and/or 'code'")
+		return nil, nil, newRedirectedErr(errInvalidRequest, "Response type 'token' must be provided with type 'id_token' and/or 'code'")
 	}
 	if !rt.code {
 		// Either "id_token token" or "id_token" has been provided which implies the
@@ -552,13 +553,13 @@ func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthReques
 		//
 		// https://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthRequest
 		if nonce == "" {
-			return nil, newRedirectedErr(errInvalidRequest, "Response type 'token' requires a 'nonce' value.")
+			return nil, nil, newRedirectedErr(errInvalidRequest, "Response type 'token' requires a 'nonce' value.")
 		}
 	}
 	if rt.token {
 		if redirectURI == redirectURIOOB {
 			err := fmt.Sprintf("Cannot use response type 'token' with redirect_uri '%s'.", redirectURIOOB)
-			return nil, newRedirectedErr(errInvalidRequest, err)
+			return nil, nil, newRedirectedErr(errInvalidRequest, err)
 		}
 	}
 
@@ -572,11 +573,12 @@ func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthReques
 		RedirectURI:         redirectURI,
 		ResponseTypes:       responseTypes,
 		ConnectorID:         connectorID,
+		LoginHint:           q.Get("login_hint"),
 		PKCE: storage.PKCE{
 			CodeChallenge:       codeChallenge,
 			CodeChallengeMethod: codeChallengeMethod,
 		},
-	}, nil
+	}, r.Form, nil
 }
 
 func parseCrossClientScope(scope string) (peerID string, ok bool) {

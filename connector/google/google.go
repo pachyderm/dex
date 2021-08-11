@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -125,7 +126,7 @@ func (c *googleConnector) Close() error {
 	return nil
 }
 
-func (c *googleConnector) LoginURL(s connector.Scopes, callbackURL, state string) (string, error) {
+func (c *googleConnector) LoginURL(s connector.Scopes, callbackURL, state string, _ url.Values) (string, error) {
 	if c.redirectURI != callbackURL {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q", callbackURL, c.redirectURI)
 	}

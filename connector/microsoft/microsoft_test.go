@@ -39,7 +39,7 @@ func TestLoginURL(t *testing.T) {
 		tenant:      tenant,
 	}
 
-	loginURL, _ := conn.LoginURL(connector.Scopes{}, conn.redirectURI, testState)
+	loginURL, _ := conn.LoginURL(connector.Scopes{}, conn.redirectURI, testState, nil)
 
 	parsedLoginURL, _ := url.Parse(loginURL)
 	queryParams := parsedLoginURL.Query()
@@ -70,7 +70,7 @@ func TestLoginURLWithOptions(t *testing.T) {
 		domainHint: domainHint,
 	}
 
-	loginURL, _ := conn.LoginURL(connector.Scopes{}, conn.redirectURI, "some-state")
+	loginURL, _ := conn.LoginURL(connector.Scopes{}, conn.redirectURI, "some-state", nil)
 
 	parsedLoginURL, _ := url.Parse(loginURL)
 	queryParams := parsedLoginURL.Query()

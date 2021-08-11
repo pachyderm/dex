@@ -289,6 +289,9 @@ var migrations = []migration{
 			`
 			alter table device_token
 				add column code_challenge_method text not null default '';`,
+			`
+			alter table auth_request
+				add column login_hint text not null default '';`,
 		},
 	},
 }

@@ -204,6 +204,13 @@ func CodeChallengeMethod(v string) predicate.AuthRequest {
 	})
 }
 
+// LoginHint applies equality check predicate on the "login_hint" field. It's identical to LoginHintEQ.
+func LoginHint(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldLoginHint), v))
+	})
+}
+
 // ClientIDEQ applies the EQ predicate on the "client_id" field.
 func ClientIDEQ(v string) predicate.AuthRequest {
 	return predicate.AuthRequest(func(s *sql.Selector) {
@@ -1672,6 +1679,117 @@ func CodeChallengeMethodEqualFold(v string) predicate.AuthRequest {
 func CodeChallengeMethodContainsFold(v string) predicate.AuthRequest {
 	return predicate.AuthRequest(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldCodeChallengeMethod), v))
+	})
+}
+
+// LoginHintEQ applies the EQ predicate on the "login_hint" field.
+func LoginHintEQ(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldLoginHint), v))
+	})
+}
+
+// LoginHintNEQ applies the NEQ predicate on the "login_hint" field.
+func LoginHintNEQ(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldLoginHint), v))
+	})
+}
+
+// LoginHintIn applies the In predicate on the "login_hint" field.
+func LoginHintIn(vs ...string) predicate.AuthRequest {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldLoginHint), v...))
+	})
+}
+
+// LoginHintNotIn applies the NotIn predicate on the "login_hint" field.
+func LoginHintNotIn(vs ...string) predicate.AuthRequest {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldLoginHint), v...))
+	})
+}
+
+// LoginHintGT applies the GT predicate on the "login_hint" field.
+func LoginHintGT(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldLoginHint), v))
+	})
+}
+
+// LoginHintGTE applies the GTE predicate on the "login_hint" field.
+func LoginHintGTE(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldLoginHint), v))
+	})
+}
+
+// LoginHintLT applies the LT predicate on the "login_hint" field.
+func LoginHintLT(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldLoginHint), v))
+	})
+}
+
+// LoginHintLTE applies the LTE predicate on the "login_hint" field.
+func LoginHintLTE(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldLoginHint), v))
+	})
+}
+
+// LoginHintContains applies the Contains predicate on the "login_hint" field.
+func LoginHintContains(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldLoginHint), v))
+	})
+}
+
+// LoginHintHasPrefix applies the HasPrefix predicate on the "login_hint" field.
+func LoginHintHasPrefix(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldLoginHint), v))
+	})
+}
+
+// LoginHintHasSuffix applies the HasSuffix predicate on the "login_hint" field.
+func LoginHintHasSuffix(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldLoginHint), v))
+	})
+}
+
+// LoginHintEqualFold applies the EqualFold predicate on the "login_hint" field.
+func LoginHintEqualFold(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldLoginHint), v))
+	})
+}
+
+// LoginHintContainsFold applies the ContainsFold predicate on the "login_hint" field.
+func LoginHintContainsFold(v string) predicate.AuthRequest {
+	return predicate.AuthRequest(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldLoginHint), v))
 	})
 }
 

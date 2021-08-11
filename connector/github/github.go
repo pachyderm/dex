@@ -11,6 +11,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -188,7 +189,7 @@ func (c *githubConnector) oauth2Config(scopes connector.Scopes) *oauth2.Config {
 	}
 }
 
-func (c *githubConnector) LoginURL(scopes connector.Scopes, callbackURL, state string) (string, error) {
+func (c *githubConnector) LoginURL(scopes connector.Scopes, callbackURL, state string, _ url.Values) (string, error) {
 	if c.redirectURI != callbackURL {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q", callbackURL, c.redirectURI)
 	}
@@ -356,9 +357,11 @@ func formatTeamName(org string, team string) string {
 
 // groupsForOrgs enforces org and team constraints on user authorization
 // Cases in which user is authorized:
-// 	N orgs, no teams: user is member of at least 1 org
-// 	N orgs, M teams per org: user is member of any team from at least 1 org
-// 	N-1 orgs, M teams per org, 1 org with no teams: user is member of any team
+//
+//	N orgs, no teams: user is member of at least 1 org
+//	N orgs, M teams per org: user is member of any team from at least 1 org
+//	N-1 orgs, M teams per org, 1 org with no teams: user is member of any team
+//
 // from at least 1 org, or member of org with no teams
 func (c *githubConnector) groupsForOrgs(ctx context.Context, client *http.Client, userName string) ([]string, error) {
 	groups := make([]string, 0)
