@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"golang.org/x/oauth2"
@@ -62,7 +63,7 @@ var (
 )
 
 // LoginURL returns an access token request URL
-func (c *linkedInConnector) LoginURL(scopes connector.Scopes, callbackURL, state string) (string, error) {
+func (c *linkedInConnector) LoginURL(scopes connector.Scopes, callbackURL, state string, _ url.Values) (string, error) {
 	if c.oauth2Config.RedirectURL != callbackURL {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q",
 			callbackURL, c.oauth2Config.RedirectURL)

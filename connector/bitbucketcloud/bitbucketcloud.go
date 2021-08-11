@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
@@ -111,7 +112,7 @@ func (b *bitbucketConnector) oauth2Config(scopes connector.Scopes) *oauth2.Confi
 	}
 }
 
-func (b *bitbucketConnector) LoginURL(scopes connector.Scopes, callbackURL, state string) (string, error) {
+func (b *bitbucketConnector) LoginURL(scopes connector.Scopes, callbackURL, state string, _ url.Values) (string, error) {
 	if b.redirectURI != callbackURL {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q", callbackURL, b.redirectURI)
 	}

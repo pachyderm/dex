@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"golang.org/x/oauth2"
@@ -98,7 +99,7 @@ func (c *gitlabConnector) oauth2Config(scopes connector.Scopes) *oauth2.Config {
 	}
 }
 
-func (c *gitlabConnector) LoginURL(scopes connector.Scopes, callbackURL, state string) (string, error) {
+func (c *gitlabConnector) LoginURL(scopes connector.Scopes, callbackURL, state string, _ url.Values) (string, error) {
 	if c.redirectURI != callbackURL {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q", c.redirectURI, callbackURL)
 	}

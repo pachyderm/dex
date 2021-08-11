@@ -82,6 +82,10 @@ func init() {
 	authrequestDescCodeChallengeMethod := authrequestFields[19].Descriptor()
 	// authrequest.DefaultCodeChallengeMethod holds the default value on creation for the code_challenge_method field.
 	authrequest.DefaultCodeChallengeMethod = authrequestDescCodeChallengeMethod.Default.(string)
+	// authrequestDescLoginHint is the schema descriptor for login_hint field.
+	authrequestDescLoginHint := authrequestFields[20].Descriptor()
+	// authrequest.DefaultLoginHint holds the default value on creation for the login_hint field.
+	authrequest.DefaultLoginHint = authrequestDescLoginHint.Default.(string)
 	// authrequestDescID is the schema descriptor for id field.
 	authrequestDescID := authrequestFields[0].Descriptor()
 	// authrequest.IDValidator is a validator for the "id" field. It is called by the builders before save.

@@ -59,6 +59,8 @@ type Config struct {
 	// PromptType will be used fot the prompt parameter (when offline_access, by default prompt=consent)
 	PromptType string `json:"promptType"`
 
+	ForwardedLoginParams []string `json:"forwardedLoginParams"`
+
 	ClaimMapping struct {
 		// Configurable key which contains the preferred username claims
 		PreferredUsernameKey string `json:"preferred_username"` // defaults to "preferred_username"
@@ -160,6 +162,7 @@ func (c *Config) Open(id string, logger log.Logger) (conn connector.Connector, e
 		preferredUsernameKey:                  c.ClaimMapping.PreferredUsernameKey,
 		emailKey:                              c.ClaimMapping.EmailKey,
 		groupsKey:                             c.ClaimMapping.GroupsKey,
+		forwardedLoginParams:                  c.ForwardedLoginParams,
 	}, nil
 }
 
@@ -186,6 +189,7 @@ type oidcConnector struct {
 	preferredUsernameKey                  string
 	emailKey                              string
 	groupsKey                             string
+	forwardedLoginParams                  []string
 }
 
 func (c *oidcConnector) Close() error {
@@ -193,7 +197,7 @@ func (c *oidcConnector) Close() error {
 	return nil
 }
 
-func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string) (string, error) {
+func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string, forwardParams url.Values) (string, error) {
 	if c.redirectURI != callbackURL && !c.insecureSkipIssuerCallbackDomainCheck {
 		return "", fmt.Errorf("expected callback URL %q did not match the URL in the config %q", callbackURL, c.redirectURI)
 	}
@@ -209,6 +213,21 @@ func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string) 
 
 	if s.OfflineAccess {
 		opts = append(opts, oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", c.promptType))
+	}
+
+	for p := range forwardParams {
+		paramApproved := false
+		for _, approvedParam := range c.forwardedLoginParams {
+			if p == approvedParam {
+				paramApproved = true
+				break
+			}
+		}
+		if paramApproved {
+			opts = append(opts, oauth2.SetAuthURLParam(p, forwardParams.Get(p)))
+		} else {
+			c.logger.Infof("oidc: auth query parameter %s, is unapproved and was not forwarded to the connector idp", p)
+		}
 	}
 	return c.oauth2Config.AuthCodeURL(state, opts...), nil
 }

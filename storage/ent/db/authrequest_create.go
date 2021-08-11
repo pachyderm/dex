@@ -158,6 +158,20 @@ func (arc *AuthRequestCreate) SetNillableCodeChallengeMethod(s *string) *AuthReq
 	return arc
 }
 
+// SetLoginHint sets the "login_hint" field.
+func (arc *AuthRequestCreate) SetLoginHint(s string) *AuthRequestCreate {
+	arc.mutation.SetLoginHint(s)
+	return arc
+}
+
+// SetNillableLoginHint sets the "login_hint" field if the given value is not nil.
+func (arc *AuthRequestCreate) SetNillableLoginHint(s *string) *AuthRequestCreate {
+	if s != nil {
+		arc.SetLoginHint(*s)
+	}
+	return arc
+}
+
 // SetID sets the "id" field.
 func (arc *AuthRequestCreate) SetID(s string) *AuthRequestCreate {
 	arc.mutation.SetID(s)
@@ -228,6 +242,10 @@ func (arc *AuthRequestCreate) defaults() {
 		v := authrequest.DefaultCodeChallengeMethod
 		arc.mutation.SetCodeChallengeMethod(v)
 	}
+	if _, ok := arc.mutation.LoginHint(); !ok {
+		v := authrequest.DefaultLoginHint
+		arc.mutation.SetLoginHint(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -276,6 +294,9 @@ func (arc *AuthRequestCreate) check() error {
 	}
 	if _, ok := arc.mutation.CodeChallengeMethod(); !ok {
 		return &ValidationError{Name: "code_challenge_method", err: errors.New("db: missing required field \"code_challenge_method\"")}
+	}
+	if _, ok := arc.mutation.LoginHint(); !ok {
+		return &ValidationError{Name: "login_hint", err: errors.New("db: missing required field \"login_hint\"")}
 	}
 	if v, ok := arc.mutation.ID(); ok {
 		if err := authrequest.IDValidator(v); err != nil {
@@ -462,6 +483,14 @@ func (arc *AuthRequestCreate) createSpec() (*AuthRequest, *sqlgraph.CreateSpec) 
 			Column: authrequest.FieldCodeChallengeMethod,
 		})
 		_node.CodeChallengeMethod = value
+	}
+	if value, ok := arc.mutation.LoginHint(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: authrequest.FieldLoginHint,
+		})
+		_node.LoginHint = value
 	}
 	return _node, _spec
 }
