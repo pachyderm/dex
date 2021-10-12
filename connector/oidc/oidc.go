@@ -273,6 +273,7 @@ func (c *oidcConnector) Refresh(ctx context.Context, s connector.Scopes, identit
 	}
 	token, err := c.oauth2Config.TokenSource(ctx, t).Token()
 	if err != nil {
+		c.logger.Error("sent refresh token %s", t.RefreshToken)
 		return identity, fmt.Errorf("oidc: failed to get refresh token: %v", err)
 	}
 
@@ -383,6 +384,8 @@ func (c *oidcConnector) createIdentity(ctx context.Context, identity connector.I
 		}
 	}
 
+	c.logger.Error("got id token %s", token.Extra("id_token").(string))
+	c.logger.Error("got refresh token %s", token.RefreshToken)
 	cd := connectorData{
 		RefreshToken: []byte(token.RefreshToken),
 	}
