@@ -130,6 +130,8 @@ func (c *Config) Open(id string, logger log.Logger) (conn connector.Connector, e
 		scopes = append(scopes, "profile", "email")
 	}
 
+	scopes = append(scopes, "offline_access")
+
 	// PromptType should be "consent" by default, if not set
 	if c.PromptType == "" {
 		c.PromptType = "consent"
