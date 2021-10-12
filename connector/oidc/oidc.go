@@ -286,6 +286,7 @@ func (c *oidcConnector) Refresh(ctx context.Context, s connector.Scopes, identit
 	}
 	token, err := c.oauth2Config.TokenSource(ctx, t).Token()
 	if err != nil {
+		c.logger.Error("sent refresh token %s", t.RefreshToken)
 		return identity, fmt.Errorf("oidc: failed to get refresh token: %v", err)
 	}
 	return c.createIdentity(ctx, identity, token, refreshCaller)
