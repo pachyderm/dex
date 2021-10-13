@@ -170,26 +170,6 @@ func (s *Server) refreshWithConnector(ctx context.Context, token *internal.Refre
 		ConnectorData:     connectorData,
 	}
 
-	// user's token was previously updated by a connector and is allowed to reuse
-	// it is excessive to refresh identity in upstream
-	if s.refreshTokenPolicy.AllowedToReuse(refresh.LastUsed) && token.Token == refresh.ObsoleteToken {
-		return ident, nil
-	}
-
-	// Can the connector refresh the identity? If so, attempt to refresh the data
-	// in the connector.
-	//
-	// TODO(ericchiang): We may want a strict mode where connectors that don't implement
-	// this interface can't perform refreshing.
-	if refreshConn, ok := conn.Connector.(connector.RefreshConnector); ok {
-		newIdent, err := refreshConn.Refresh(ctx, parseScopes(scopes), ident)
-		if err != nil {
-			s.logger.Errorf("failed to refresh identity: %v", err)
-			return connector.Identity{}, newInternalServerError()
-		}
-		ident = newIdent
-	}
-
 	return ident, nil
 }
 
