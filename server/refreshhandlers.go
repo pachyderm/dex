@@ -154,6 +154,12 @@ func (s *Server) refreshWithConnector(ctx context.Context, token *internal.Refre
 		connectorData = session.ConnectorData
 	}
 
+	conn, err := s.getConnector(refresh.ConnectorID)
+	if err != nil {
+		s.logger.Errorf("connector with ID %q not found: %v", refresh.ConnectorID, err)
+		return connector.Identity{}, newInternalServerError()
+	}
+
 	ident := connector.Identity{
 		UserID:            refresh.Claims.UserID,
 		Username:          refresh.Claims.Username,
