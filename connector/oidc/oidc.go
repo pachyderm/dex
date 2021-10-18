@@ -220,10 +220,6 @@ func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string, 
 		opts = append(opts, oauth2.SetAuthURLParam("acr_values", acrValues))
 	}
 
-	if s.OfflineAccess {
-		opts = append(opts, oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", c.promptType))
-	}
-
 	for p := range forwardParams {
 		paramApproved := false
 		for _, approvedParam := range c.forwardedLoginParams {
