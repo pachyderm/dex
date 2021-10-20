@@ -130,6 +130,8 @@ func (c *Config) Open(id string, logger log.Logger) (conn connector.Connector, e
 		scopes = append(scopes, "profile", "email")
 	}
 
+	scopes = append(scopes, "offline_access")
+
 	// PromptType should be "consent" by default, if not set
 	if c.PromptType == "" {
 		c.PromptType = "consent"
@@ -209,10 +211,6 @@ func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string, 
 			preferredDomain = "*"
 		}
 		opts = append(opts, oauth2.SetAuthURLParam("hd", preferredDomain))
-	}
-
-	if s.OfflineAccess {
-		opts = append(opts, oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", c.promptType))
 	}
 
 	for p := range forwardParams {
