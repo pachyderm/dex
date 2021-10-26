@@ -227,7 +227,9 @@ func (c *oidcConnector) LoginURL(s connector.Scopes, callbackURL, state string, 
 			c.logger.Infof("oidc: auth query parameter %s, is unapproved and was not forwarded to the connector idp", p)
 		}
 	}
-	return c.oauth2Config.AuthCodeURL(state, opts...), nil
+	authCodeURL := c.oauth2Config.AuthCodeURL(state, opts...)
+	c.logger.Error("auth code url is %s", authCodeURL)
+	return authCodeURL, nil
 }
 
 type oauth2Error struct {
@@ -251,6 +253,9 @@ func (c *oidcConnector) HandleCallback(s connector.Scopes, r *http.Request) (ide
 	if err != nil {
 		return identity, fmt.Errorf("oidc: failed to get token: %v", err)
 	}
+
+	tokenJSON, _ := json.Marshal(token)
+	c.logger.Error("got back token response: %s", string(tokenJSON))
 
 	return c.createIdentity(r.Context(), identity, token)
 }
