@@ -11,7 +11,6 @@ require (
 	github.com/dexidp/dex/api/v2 v2.0.0
 	github.com/felixge/httpsnoop v1.0.2
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-bindata/go-bindata v1.0.1-0.20190711162640-ee3c2418e368 // indirect
 	github.com/go-ldap/ldap/v3 v3.3.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gorilla/handlers v1.5.1
@@ -21,15 +20,12 @@ require (
 	github.com/lib/pq v1.10.5
 	github.com/mattermost/xml-roundtrip-validator v0.1.0
 	github.com/mattn/go-sqlite3 v1.14.13
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/oklog/run v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/russellhaering/goxmldsig v1.1.0
-	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.5.0
-	github.com/spf13/viper v1.7.0 // indirect
 	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	go.etcd.io/etcd/client/pkg/v3 v3.5.0
 	go.etcd.io/etcd/client/v3 v3.5.0
