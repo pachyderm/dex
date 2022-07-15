@@ -51,7 +51,6 @@ jobs:
                 options:
                     --health-cmd "mysql -proot -e \"show databases;\"" --health-interval 10s
                     --health-timeout 5s --health-retries 5
-
             etcd:
                 image: gcr.io/etcd-development/etcd:v3.5.0
                 ports:
