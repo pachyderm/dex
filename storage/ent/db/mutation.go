@@ -2052,11 +2052,6 @@ func (m *AuthRequestMutation) ResetCodeChallengeMethod() {
 	m.code_challenge_method = nil
 }
 
-// Where appends a list predicates to the AuthRequestMutation builder.
-func (m *AuthRequestMutation) Where(ps ...predicate.AuthRequest) {
-	m.predicates = append(m.predicates, ps...)
-}
-
 // SetLoginHint sets the "login_hint" field.
 func (m *AuthRequestMutation) SetLoginHint(s string) {
 	m.login_hint = &s
@@ -2076,10 +2071,10 @@ func (m *AuthRequestMutation) LoginHint() (r string, exists bool) {
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *AuthRequestMutation) OldLoginHint(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldLoginHint is only allowed on UpdateOne operations")
+		return v, errors.New("OldLoginHint is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldLoginHint requires an ID field in the mutation")
+		return v, errors.New("OldLoginHint requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
@@ -2091,6 +2086,11 @@ func (m *AuthRequestMutation) OldLoginHint(ctx context.Context) (v string, err e
 // ResetLoginHint resets all changes to the "login_hint" field.
 func (m *AuthRequestMutation) ResetLoginHint() {
 	m.login_hint = nil
+}
+
+// Where appends a list predicates to the AuthRequestMutation builder.
+func (m *AuthRequestMutation) Where(ps ...predicate.AuthRequest) {
+	m.predicates = append(m.predicates, ps...)
 }
 
 // Op returns the operation name.

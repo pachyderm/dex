@@ -315,7 +315,7 @@ func (arc *AuthRequestCreate) check() error {
 		return &ValidationError{Name: "code_challenge_method", err: errors.New(`db: missing required field "AuthRequest.code_challenge_method"`)}
 	}
 	if _, ok := arc.mutation.LoginHint(); !ok {
-		return &ValidationError{Name: "login_hint", err: errors.New("db: missing required field \"login_hint\"")}
+		return &ValidationError{Name: "login_hint", err: errors.New(`db: missing required field "AuthRequest.login_hint"`)}
 	}
 	if v, ok := arc.mutation.ID(); ok {
 		if err := authrequest.IDValidator(v); err != nil {
