@@ -662,7 +662,7 @@ func (s *storageKeySet) VerifySignature(_ context.Context, jwt string) (payload 
 	}
 
 	var (
-		sigAlgsMap map[jose.SignatureAlgorithm]bool
+		sigAlgsMap = make(map[jose.SignatureAlgorithm]bool)
 		keys       []*jose.JSONWebKey
 	)
 	if skeys.SigningKeyPub != nil {
