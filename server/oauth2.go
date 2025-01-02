@@ -93,7 +93,6 @@ func tokenErr(w http.ResponseWriter, typ, description string, statusCode int) er
 	return nil
 }
 
-// nolint
 const (
 	errInvalidRequest          = "invalid_request"
 	errUnauthorizedClient      = "unauthorized_client"
@@ -663,7 +662,7 @@ func (s *storageKeySet) VerifySignature(_ context.Context, jwt string) (payload 
 
 	var (
 		sigAlgsMap = make(map[jose.SignatureAlgorithm]bool)
-		keys       []*jose.JSONWebKey
+		keys       = make([]*jose.JSONWebKey, 0)
 	)
 	if skeys.SigningKeyPub != nil {
 		keys = append(keys, skeys.SigningKeyPub)

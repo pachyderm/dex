@@ -150,7 +150,6 @@ func TestOpen(t *testing.T) {
 			expectedErr: "",
 		},
 	} {
-		reference := reference
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
@@ -219,7 +218,6 @@ func TestGetGroups(t *testing.T) {
 			expectedGroups:                 []string{"groups_0@dexidp.com", "groups_1@dexidp.com"},
 		},
 	} {
-		testCase := testCase
 		callCounter = map[string]int{}
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)

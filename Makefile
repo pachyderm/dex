@@ -16,7 +16,7 @@ export GOBIN=$(PWD)/bin
 LD_FLAGS="-w -X main.version=$(VERSION)"
 
 # Dependency versions
-GOLANGCI_VERSION   = 1.57.2
+GOLANGCI_VERSION   = 1.63.2
 GOTESTSUM_VERSION ?= 1.9.0
 
 PROTOC_VERSION             = 21.12
@@ -167,7 +167,7 @@ kind-down: ## Delete the kind cluster.
 
 bin/golangci-lint:
 	@mkdir -p bin
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | BINARY=golangci-lint bash -s -- v${GOLANGCI_VERSION}
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- v${GOLANGCI_VERSION}
 
 bin/gotestsum:
 	@mkdir -p bin

@@ -24,7 +24,6 @@ import (
 	"github.com/dexidp/dex/pkg/log"
 )
 
-//nolint
 const (
 	bindingRedirect = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
 	bindingPOST     = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
@@ -467,7 +466,7 @@ func (p *provider) validateStatus(status *status) error {
 		if statusMessage != nil && statusMessage.Value != "" {
 			errorMessage += " -> " + statusMessage.Value
 		}
-		return fmt.Errorf(errorMessage)
+		return errors.New(errorMessage)
 	}
 	return nil
 }
