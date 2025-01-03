@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"gopkg.in/square/go-jose.v2"
+	"github.com/go-jose/go-jose/v4"
 
 	"github.com/dexidp/dex/storage"
 	"github.com/dexidp/dex/storage/memory"
@@ -611,7 +611,6 @@ func TestStorageKeySet(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			jwt, err := tc.tokenGenerator()
 			if err != nil {

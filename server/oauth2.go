@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	jose "gopkg.in/square/go-jose.v2"
+	jose "github.com/go-jose/go-jose/v4"
 
 	"github.com/dexidp/dex/connector"
 	"github.com/dexidp/dex/server/internal"
@@ -93,7 +93,6 @@ func tokenErr(w http.ResponseWriter, typ, description string, statusCode int) er
 	return nil
 }
 
-//nolint
 const (
 	errInvalidRequest          = "invalid_request"
 	errUnauthorizedClient      = "unauthorized_client"
@@ -656,7 +655,31 @@ type storageKeySet struct {
 }
 
 func (s *storageKeySet) VerifySignature(_ context.Context, jwt string) (payload []byte, err error) {
-	jws, err := jose.ParseSigned(jwt)
+	skeys, err := s.Storage.GetKeys()
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		sigAlgsMap = make(map[jose.SignatureAlgorithm]bool)
+		keys       = make([]*jose.JSONWebKey, 0)
+	)
+	if skeys.SigningKeyPub != nil {
+		keys = append(keys, skeys.SigningKeyPub)
+		sigAlgsMap[jose.SignatureAlgorithm(skeys.SigningKey.Algorithm)] = true
+	}
+	for _, vk := range skeys.VerificationKeys {
+		keys = append(keys, vk.PublicKey)
+		sigAlgsMap[jose.SignatureAlgorithm(vk.PublicKey.Algorithm)] = true
+	}
+	var sigAlgs []jose.SignatureAlgorithm
+	for k, v := range sigAlgsMap {
+		if v {
+			sigAlgs = append(sigAlgs, k)
+		}
+	}
+
+	jws, err := jose.ParseSigned(jwt, sigAlgs)
 	if err != nil {
 		return nil, err
 	}
@@ -665,16 +688,6 @@ func (s *storageKeySet) VerifySignature(_ context.Context, jwt string) (payload 
 	for _, sig := range jws.Signatures {
 		keyID = sig.Header.KeyID
 		break
-	}
-
-	skeys, err := s.Storage.GetKeys()
-	if err != nil {
-		return nil, err
-	}
-
-	keys := []*jose.JSONWebKey{skeys.SigningKeyPub}
-	for _, vk := range skeys.VerificationKeys {
-		keys = append(keys, vk.PublicKey)
 	}
 
 	for _, key := range keys {
